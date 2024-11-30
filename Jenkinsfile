@@ -13,6 +13,7 @@ node {
 
         script {
                     // Running 'ls' inside a shell
+                    sh 'pwd'
                     sh 'ls'
                 }
 
