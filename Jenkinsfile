@@ -1,6 +1,10 @@
 node {
     def app
 
+    environment {
+        DOCKER_TLS_VERIFY = '0'  // Disable TLS verification (only for dev/test environments)
+    }
+
     stage('Clone repository') {
         /* Let's make sure we have the repository cloned to our workspace */
 
