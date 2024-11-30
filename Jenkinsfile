@@ -11,7 +11,10 @@ node {
         /* This builds the actual image; synonymous to
          * docker build on the command line */
 
-        ls -ltr
+        script {
+                    // Running 'ls' inside a shell
+                    sh 'ls'
+                }
 
         app = docker.build("getintodevops/hellonode")
     }
