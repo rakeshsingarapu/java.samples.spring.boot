@@ -11,9 +11,10 @@ node {
         checkout scm
     }
 
+    /*
     stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
+        //This builds the actual image; synonymous to
+         // docker build on the command line 
 
         script {
                     // Running 'ls' inside a shell
@@ -25,6 +26,15 @@ node {
                     docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
                     '''
                 }
+    }*/
+    
+    stage('Build with Maven') {
+        steps {
+            script {
+                // Use the official Maven Docker image to run Maven build
+                sh 'docker run --rm -v $PWD:/usr/src/mymaven -w /usr/src/mymaven maven:3.8.4-openjdk-17 mvn clean package -DskipTests'
+            }
+        }
     }
 
    stage('Login to Docker Hub') {
