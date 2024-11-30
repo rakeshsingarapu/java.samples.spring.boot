@@ -19,6 +19,7 @@ node {
                     // Running 'ls' inside a shell
                     sh 'pwd'
                     sh 'ls'
+                    mvn clean install
                 }
 
         app = docker.build("getintodevops/hellonode")
