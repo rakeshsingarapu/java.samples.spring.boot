@@ -3,8 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'getintodevops/hellonode'  // Define the image name
-        DOCKER_HUB_USERNAME = credentials('dockerhub-username') // Fetch Docker Hub username from Jenkins credentials store
-        DOCKER_HUB_PASSWORD = credentials('dockerhub-password') // Fetch Docker Hub password from Jenkins credentials store
         DOCKER_TLS_VERIFY = '0'  // Disable TLS verification (only for dev/test environments)
     }
 
@@ -41,8 +39,11 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    // Log in to Docker Hub securely
-                    sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+                    // Use 'withCredentials' to securely inject Docker Hub credentials
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        // Log in to Docker Hub securely
+                        sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+                    }
                 }
             }
         }
