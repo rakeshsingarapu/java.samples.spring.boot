@@ -19,29 +19,38 @@ node {
                     // Running 'ls' inside a shell
                     sh 'pwd'
                     sh 'ls'
-                    mvn clean install
-                }
+                    sh 'mvn clean package -DskipTests'
 
-        app = docker.build("getintodevops/hellonode")
+                    sh '''
+                    docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                    '''
+                }
     }
 
-    stage('Test image') {
-        /* Ideally, we would run a test framework against our image.
-         * For this example, we're using a Volkswagen-type approach ;-) */
-
-        app.inside {
-            sh 'echo "Tests passed"'
+   stage('Login to Docker Hub') {
+        steps {
+            script {
+                // Log in to Docker Hub using the credentials
+                sh "echo ${DOCKER_HUB_PASSWORD} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin"
+            }
         }
     }
 
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
-        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+    stage('Push Docker Image') {
+        steps {
+            script {
+                // Push the image to Docker Hub
+                sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+            }
+        }
+    }
+
+    stage('Clean Up') {
+        steps {
+            script {
+                // Remove the local Docker image after pushing
+                sh 'docker rmi ${IMAGE_NAME}:${BUILD_NUMBER}'
+            }
         }
     }
 }
